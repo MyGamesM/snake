@@ -1,7 +1,9 @@
 import os, pygame
-from classes.tile import Tile
-from classes.head import Head
-from classes.types import types
+
+from classes.map import Map
+
+from classes.tiles.grass import Grass
+from classes.tiles.snakehead import SnakeHead
 
 os.system("cls")
 
@@ -14,13 +16,11 @@ class Game:
 		self.clock = pygame.time.Clock()
 		self.running: bool = True
 		self.tick = 0
-		
+
 		self.GRAY: tuple[int, int, int] = (200, 200, 200)
 		self.GREEN: tuple[int, int, int] = (0, 255, 0)
-		self.map: list[list[Tile]] = [[Tile(j, i) for j in range(10)] for i in range(10)]
-		self.head_pos = (3, 3)
-
-		self.map[3][3] = Head(3, 3, 1)
+		self.map: Map = Map(10, 10)
+		self.map.set_snake_head(0, 0)
 
 		self.screen.fill("black")
 
@@ -30,11 +30,11 @@ class Game:
 		blockSize = 65
 		for y in range(10):
 			for x in range(10):
-				tile = self.map[x][y].get_type()
-				if tile == types["GRASS"]:
-					pygame.draw.rect(self.screen, self.GRAY, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
-				elif tile == types["HEAD"]:
+				tile_type = self.map.get_tile(x, y)
+				if isinstance(tile_type, Grass):
 					pygame.draw.rect(self.screen, self.GREEN, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
+				elif isinstance(tile_type, SnakeHead):
+					pygame.draw.rect(self.screen, self.GRAY, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
 
 	def on_tick(self) -> None:
 		self.tick += 1
@@ -42,10 +42,11 @@ class Game:
 		if self.tick > 59:
 			self.tick = 0
 
-		if self.tick == 44:
-			y, x = self.head_pos
-			self.map[y][x].update_position(x + 1, y)
-			self.head_pos = (y, x + 1)
+		if self.tick == 59:
+			x, y = self.map.snake_head.get_coords()
+			print(f"x: {x} y: {y}")
+			self.map.set_tile_possition(x, y, x + 1, y)
+			self.map.snake_head.set_coords(x + 1, y)
 
 	def main_loop(self) -> None:
 		while self.running:
@@ -62,7 +63,6 @@ class Game:
 			pygame.display.flip()
 
 			self.on_tick()
-			print(self.head_pos)
 
 			self.clock.tick(60)
 
