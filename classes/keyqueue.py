@@ -11,8 +11,11 @@ class KeyQueue:
 	def get_previous_move(self) -> Vector2:
 		return self.previous_move
 
+
 	def calculate_next_move(self) -> Vector2:
 		result: Vector2 = Vector2(0, 0)
+		last: Vector2 = Vector2(0, 0)
+		if self.queue != []: last = self.queue[len(self.queue) - 1]
 
 		for vec in self.queue:
 			result += vec

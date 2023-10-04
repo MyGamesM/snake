@@ -1,7 +1,10 @@
+from random import randint
 from pygame import Vector2
+
 from .tile import Tile
 from .tiles.grass import Grass
 from .tiles.snakehead import SnakeHead
+from .tiles.apple import Apple
 
 class Map:
 	def __init__(self, width: int, height: int) -> None:
@@ -27,3 +30,12 @@ class Map:
 		new_x, new_y = int(new_x), int(new_y)
 
 		self.tiles[y][x], self.tiles[new_y][new_x] = self.tiles[new_y][new_x], self.tiles[y][x]
+
+	def spawn_apple(self) -> None:
+		x, y = randint(0, 9), randint(0, 9)
+		self.apple = Apple(Vector2(x, y))
+		self.set_tile(Vector2(x, y), self.apple)
+
+	def eat_apple(self, apple_coords: Vector2) -> None:
+		self.set_tile(apple_coords, Grass())
+		self.spawn_apple()
