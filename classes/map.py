@@ -33,8 +33,10 @@ class Map:
 
 	def spawn_apple(self) -> None:
 		x, y = randint(0, 9), randint(0, 9)
-		self.apple = Apple(Vector2(x, y))
-		self.set_tile(Vector2(x, y), self.apple)
+		if (x, y) != self.snake_head.get_coords().xy:
+			self.apple = Apple(Vector2(x, y))
+			self.set_tile(Vector2(x, y), self.apple)
+		else: self.spawn_apple()
 
 	def eat_apple(self, apple_coords: Vector2) -> None:
 		self.set_tile(apple_coords, Grass())
