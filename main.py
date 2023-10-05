@@ -1,4 +1,4 @@
-import os, pygame
+import os, sys, pygame
 from pygame import Vector2
 
 from classes.map import Map
@@ -17,7 +17,8 @@ class Game:
 		self.screen = pygame.display.set_mode((750, 750))
 		self.clock = pygame.time.Clock()
 		self.running: bool = True
-		self.tick = 0
+		self.tick: int = 0
+		self.eaten: int = 0
 		self.diagonal: tuple[Vector2, Vector2, Vector2, Vector2] = (
 			Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)
 		)
@@ -37,7 +38,11 @@ class Game:
 			for x in range(10):
 				tile_type: Tile = self.map.get_tile(Vector2(x, y))
 				pygame.draw.rect(self.screen, tile_type.color, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
-				
+
+	def die(self) -> None:
+		pygame.quit()
+		sys.exit()
+
 	def on_tick(self) -> None:
 		self.tick += 1
 
@@ -57,8 +62,7 @@ class Game:
 
 		new_coords = coords + next_move
 
-		if isinstance(self.map.get_tile(new_coords), Apple):
-			self.map.eat_apple(self.map.apple.get_coords())
+		self.check_collision(new_coords)
 
 		self.map.set_tile_possition(coords, new_coords)
 		self.map.snake_head.set_coords(new_coords)
@@ -66,6 +70,14 @@ class Game:
 	def move_diagonal(self, next_move: Vector2) -> None:
 		self.move(Vector2(next_move.x, 0))
 		self.move(Vector2(0, next_move.y))
+
+	def check_collision(self, vec: Vector2) -> None:
+		if vec.x > 9 or vec.x < 0: self.die()
+		if vec.y > 9 or vec.y < 0: self.die()
+
+		if isinstance(self.map.get_tile(vec), Apple):
+			self.eaten += 1
+			self.map.eat_apple(self.map.apple.get_coords())
 
 	def main_loop(self) -> None:
 		while self.running:
