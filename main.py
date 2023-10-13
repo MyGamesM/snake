@@ -3,6 +3,7 @@ from pygame import Vector2
 
 from classes.map import Map
 from classes.tile import Tile
+from classes.label import Label
 from classes.keyqueue import KeyQueue
 
 from classes.tiles.apple import Apple
@@ -29,6 +30,8 @@ class Game:
 
 		self.key_queue = KeyQueue()
 
+		self.label = Label(self.screen, f"Apples: {self.eaten}", Vector2(20, 5), 30, pygame.Color(255, 255, 255))
+
 		self.screen.fill("black")
 		self.main_loop()
 
@@ -36,8 +39,11 @@ class Game:
 		blockSize = 65
 		for y in range(10):
 			for x in range(10):
+				pygame.draw.rect(self.screen, pygame.Color(0, 0, 0), pygame.Rect(0, 0, 200, 50))
+				self.label.update(f"Apples: {self.eaten}")
 				tile_type: Tile = self.map.get_tile(Vector2(x, y))
 				pygame.draw.rect(self.screen, tile_type.color, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
+		
 
 	def die(self) -> None:
 		pygame.quit()

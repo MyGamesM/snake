@@ -13,14 +13,17 @@ class KeyQueue:
 
 	def get_previous_move(self) -> Vector2:
 		return self.previous_move
+	
+	def clamp_vector(self, vec: Vector2) -> Vector2:
+		return Vector2(max(min(vec.x, 1), -1), max(min(vec.y, 1), -1))
 
 	def calculate_next_move(self) -> Vector2:
 		result: Vector2 = Vector2(0, 0)
-		last: Vector2 = Vector2(0, 0)
-		if self.queue != []: last = self.queue[len(self.queue) - 1]
 
 		for vec in self.queue:
 			result += vec
+
+		result = self.clamp_vector(result)
 
 		try:
 			if result.length() != 0:
