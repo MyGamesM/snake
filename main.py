@@ -25,7 +25,7 @@ class Game:
 		)
 
 		self.map: Map = Map(10, 10)
-		self.map.set_snake_head(Vector2(0, 0))
+		self.map.spawn_snake(Vector2(3, 0))
 		self.map.spawn_apple()
 
 		self.key_queue = KeyQueue()
@@ -44,13 +44,13 @@ class Game:
 				tile_type: Tile = self.map.get_tile(Vector2(x, y))
 				pygame.draw.rect(self.screen, tile_type.color, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
 		
-
 	def die(self) -> None:
 		pygame.quit()
 		sys.exit()
 
 	def on_tick(self) -> None:
 		self.tick += 1
+		self.draw()
 
 		if self.tick > 59:
 			self.tick = 0
@@ -59,7 +59,7 @@ class Game:
 			self.move()
 
 	def move(self, next_move: Vector2 = Vector2(0, 0)) -> None:
-		coords = self.map.snake_head.get_coords()
+		coords = self.map.snake_head.coords
 		if next_move.length() == 0: next_move = self.key_queue.calculate_next_move()
 
 		if next_move in self.diagonal:
@@ -71,7 +71,7 @@ class Game:
 		self.check_collision(new_coords)
 
 		self.map.set_tile_possition(coords, new_coords)
-		self.map.snake_head.set_coords(new_coords)
+		self.map.snake_head.coords = new_coords
 
 	def move_diagonal(self, next_move: Vector2) -> None:
 		self.move(Vector2(next_move.x, 0))
@@ -83,7 +83,7 @@ class Game:
 
 		if isinstance(self.map.get_tile(vec), Apple):
 			self.eaten += 1
-			self.map.eat_apple(self.map.apple.get_coords())
+			self.map.eat_apple(self.map.apple.coords)
 
 	def main_loop(self) -> None:
 		while self.running:
@@ -103,7 +103,7 @@ class Game:
 					if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
 						self.key_queue.append(Vector2(1, 0))
 
-			self.draw()
+			# self.draw()
 			pygame.display.flip()
 			self.on_tick()
 			self.clock.tick(60)

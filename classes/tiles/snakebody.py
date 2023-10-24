@@ -1,9 +1,10 @@
 from pygame import Vector2
+
 from ..tile import Tile
 
-class Apple(Tile):
-	def __init__(self, coords: Vector2):
-		self.color = (255, 0, 0)
+class SnakeBody(Tile):
+	def __init__(self, coords) -> None:
+		self.color = (0, 225, 0)
 		self.__coords = coords
 
 	@property
@@ -11,5 +12,5 @@ class Apple(Tile):
 		return self.__coords
 
 	@coords.setter
-	def set_coords(self, coords: Vector2) -> None:
-		self.__coords = coords
+	def set_coords(self, _coords) -> None:
+		self.__coords = _coords

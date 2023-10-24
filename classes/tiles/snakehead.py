@@ -4,13 +4,15 @@ from ..tile import Tile
 class SnakeHead(Tile):
 	def __init__(self, coords: Vector2) -> None:
 		self.color = (0, 255, 0)
-		self.coords = coords
+		self.__coords = coords
 
-	def set_coords(self, coords: Vector2) -> None:
-		self.coords = coords
+	@property
+	def coords(self) -> Vector2:
+		return self.__coords
 
-	def get_coords(self) -> Vector2:
-		return self.coords
+	@coords.setter
+	def coords(self, coords: Vector2) -> None:
+		self.__coords = coords
 
 	def calculate_direction(self, vec1: Vector2, vec2: Vector2) -> Vector2:
 		return Vector2(
