@@ -83,8 +83,6 @@ class Game:
 			if i == 0: body_tile.movement_vector = movement_vector
 			else: body_tile.movement_vector = self.map.snake_body_list[i - 1].movement_vector
 
-			print(i, body_tile.coords, body_tile.movement_vector, body_tile.coords + body_tile.movement_vector)
-
 		if not self.move_tail_on_next_tick:
 			self.move_tail_on_next_tick = True
 			return
