@@ -12,5 +12,5 @@ class SnakeTail(Tile):
 		return self.__coords
 
 	@coords.setter
-	def set_coords(self, _coords) -> None:
+	def coords(self, _coords) -> None:
 		self.__coords = _coords

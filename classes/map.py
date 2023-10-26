@@ -21,7 +21,7 @@ class Map:
 	def set_tile(self, coords: Vector2, tile: Tile) -> None:
 		self.tiles[int(coords.y)][int(coords.x)] = tile
 
-	def set_tile_possition(self, coords: Vector2, new_coords: Vector2) -> None:
+	def swap_tile_possition(self, coords: Vector2, new_coords: Vector2) -> None:
 		x, y = coords.xy
 		new_x, new_y = new_coords.xy
 		x, y = int(x), int(y)
@@ -33,10 +33,10 @@ class Map:
 		self.snake_head = SnakeHead(coords)
 		self.set_tile(coords, self.snake_head)
 
-		self.snake_body_list.append(SnakeBody(coords - Vector2(1, 0)))
+		self.snake_body_list.append(SnakeBody(coords - Vector2(1, 0), Vector2(1, 0)))
 		self.set_tile(self.snake_body_list[0].coords, self.snake_body_list[0])
 
-		self.snake_tail = SnakeTail(coords)
+		self.snake_tail = SnakeTail(coords - Vector2(2, 0))
 		self.set_tile(coords - Vector2(2, 0), self.snake_tail)
 
 	def spawn_apple(self) -> None:

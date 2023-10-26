@@ -13,9 +13,3 @@ class SnakeHead(Tile):
 	@coords.setter
 	def coords(self, coords: Vector2) -> None:
 		self.__coords = coords
-
-	def calculate_direction(self, vec1: Vector2, vec2: Vector2) -> Vector2:
-		return Vector2(
-			max(min(vec1.x + vec2.x, 1), 0),
-			max(min(vec2.x + vec2.y, 1), 0)
-		)

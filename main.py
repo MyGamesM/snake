@@ -1,4 +1,5 @@
 import os, sys, pygame
+from copy import copy
 from pygame import Vector2
 
 from classes.map import Map
@@ -6,7 +7,9 @@ from classes.tile import Tile
 from classes.label import Label
 from classes.keyqueue import KeyQueue
 
+from classes.tiles.grass import Grass
 from classes.tiles.apple import Apple
+from classes.tiles.snakebody import SnakeBody
 
 os.system("cls")
 
@@ -19,13 +22,15 @@ class Game:
 		self.clock = pygame.time.Clock()
 		self.running: bool = True
 		self.tick: int = 0
+		self.move_ticks: list[int] = [19, 39, 59]
+		self.move_tail_on_next_tick: bool = True
 		self.eaten: int = 0
 		self.diagonal: tuple[Vector2, Vector2, Vector2, Vector2] = (
 			Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)
 		)
 
 		self.map: Map = Map(10, 10)
-		self.map.spawn_snake(Vector2(3, 0))
+		self.map.spawn_snake(Vector2(2, 1))
 		self.map.spawn_apple()
 
 		self.key_queue = KeyQueue()
@@ -43,7 +48,7 @@ class Game:
 				self.label.update(f"Apples: {self.eaten}")
 				tile_type: Tile = self.map.get_tile(Vector2(x, y))
 				pygame.draw.rect(self.screen, tile_type.color, (x * 65 + 50, y * 65 + 50, blockSize, blockSize))
-		
+
 	def die(self) -> None:
 		pygame.quit()
 		sys.exit()
@@ -55,27 +60,40 @@ class Game:
 		if self.tick > 59:
 			self.tick = 0
 
-		if self.tick == 59 or self.tick == 29:
+		if self.tick in self.move_ticks:
 			self.move()
 
-	def move(self, next_move: Vector2 = Vector2(0, 0)) -> None:
+	def move(self, movement_vector: Vector2 = Vector2(0, 0)) -> None:
 		coords = self.map.snake_head.coords
-		if next_move.length() == 0: next_move = self.key_queue.calculate_next_move()
+		movement_vector = self.key_queue.get_next_move()
 
-		if next_move in self.diagonal:
-			self.move_diagonal(next_move)
-			return
-
-		new_coords = coords + next_move
+		new_coords = coords + movement_vector
 
 		self.check_collision(new_coords)
 
-		self.map.set_tile_possition(coords, new_coords)
+		self.map.swap_tile_possition(coords, new_coords)
 		self.map.snake_head.coords = new_coords
 
-	def move_diagonal(self, next_move: Vector2) -> None:
-		self.move(Vector2(next_move.x, 0))
-		self.move(Vector2(0, next_move.y))
+		new_tail_pos = copy(self.map.snake_body_list[-1].coords)
+
+		for i, body_tile in enumerate(self.map.snake_body_list):
+			self.map.swap_tile_possition(body_tile.coords, body_tile.coords + body_tile.movement_vector)
+			body_tile.coords += body_tile.movement_vector
+
+			if i == 0: body_tile.movement_vector = movement_vector
+			else: body_tile.movement_vector = self.map.snake_body_list[i - 1].movement_vector
+
+			print(i, body_tile.coords, body_tile.movement_vector, body_tile.coords + body_tile.movement_vector)
+
+		if not self.move_tail_on_next_tick:
+			self.move_tail_on_next_tick = True
+			return
+
+		self.map.swap_tile_possition(
+			self.map.snake_tail.coords,
+			new_tail_pos
+		)
+		self.map.snake_tail.coords = new_tail_pos
 
 	def check_collision(self, vec: Vector2) -> None:
 		if vec.x > 9 or vec.x < 0: self.die()
@@ -84,6 +102,7 @@ class Game:
 		if isinstance(self.map.get_tile(vec), Apple):
 			self.eaten += 1
 			self.map.eat_apple(self.map.apple.coords)
+		elif not isinstance(self.map.get_tile(vec), Grass): self.die()
 
 	def main_loop(self) -> None:
 		while self.running:
@@ -103,7 +122,6 @@ class Game:
 					if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
 						self.key_queue.append(Vector2(1, 0))
 
-			# self.draw()
 			pygame.display.flip()
 			self.on_tick()
 			self.clock.tick(60)
